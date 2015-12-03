@@ -16,6 +16,7 @@ package org.eclipse.gef4.mvc.behaviors;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -58,8 +59,8 @@ public abstract class AbstractBehavior<VR> implements IBehavior<VR> {
 	private IVisualPart<VR, ? extends VR> host;
 	private boolean active;
 
-	private List<IHandlePart<VR, ? extends VR>> handleParts;
-	private List<IFeedbackPart<VR, ? extends VR>> feedbackParts;
+	private Map<IVisualPart<VR, ? extends VR>, List<IHandlePart<VR, ? extends VR>>> handleParts = new HashMap<IVisualPart<VR, ? extends VR>, List<IHandlePart<VR, ? extends VR>>>();
+	private Map<IVisualPart<VR, ? extends VR>, List<IFeedbackPart<VR, ? extends VR>>> feedbackParts = new HashMap<IVisualPart<VR, ? extends VR>, List<IFeedbackPart<VR, ? extends VR>>>();
 
 	@Override
 	public void activate() {
@@ -107,13 +108,24 @@ public abstract class AbstractBehavior<VR> implements IBehavior<VR> {
 			List<? extends IVisualPart<VR, ? extends VR>> targets,
 			Map<Object, Object> contextMap) {
 		if (targets != null && !targets.isEmpty()) {
-			// create feedback part, adjusting the relevant adapter scopes
+			// create feedback parts, adjusting the relevant adapter scopes
 			// before
 			switchAdaptableScopes();
-			feedbackParts = feedbackPartFactory.createFeedbackParts(targets,
-					this, contextMap);
-			BehaviorUtils.<VR> addAnchorages(getHost().getRoot(), targets,
-					feedbackParts);
+
+			// iterate over targets and generate feedback parts per target
+			for (IVisualPart<VR, ? extends VR> target : targets) {
+				if (feedbackParts.containsKey(target)) {
+					throw new IllegalStateException(
+							"Attempt to add feedback twice for the same target <"
+									+ target + ">.");
+				}
+				List<IFeedbackPart<VR, ? extends VR>> targetFeedbackParts = feedbackPartFactory
+						.createFeedbackParts(Collections.singletonList(target),
+								this, contextMap);
+				feedbackParts.put(target, targetFeedbackParts);
+				BehaviorUtils.<VR> addAnchoreds(getHost().getRoot(),
+						Collections.singletonList(target), targetFeedbackParts);
+			}
 		}
 	}
 
@@ -153,13 +165,32 @@ public abstract class AbstractBehavior<VR> implements IBehavior<VR> {
 			List<? extends IVisualPart<VR, ? extends VR>> targets,
 			Map<Object, Object> contextMap) {
 		if (targets != null && !targets.isEmpty()) {
-			// create handle part, adjusting the relevant adaptable scopes
+			// create handle parts, adjusting the relevant adaptable scopes
 			// before
 			switchAdaptableScopes();
-			handleParts = handlePartFactory.createHandleParts(targets, this,
-					contextMap);
-			BehaviorUtils.<VR> addAnchorages(getHost().getRoot(), targets,
-					handleParts);
+
+			if (targets.size() > 1) {
+				// generate multi target handles
+				List<IHandlePart<VR, ? extends VR>> targetHandleParts = handlePartFactory
+						.createHandleParts(targets, this, contextMap);
+				handleParts.put(getHost().getRoot(), targetHandleParts);
+				BehaviorUtils.<VR> addAnchoreds(getHost().getRoot(), targets,
+						targetHandleParts);
+			} else {
+				// generate single target handles
+				IVisualPart<VR, ? extends VR> target = targets.get(0);
+				if (handleParts.containsKey(target)) {
+					throw new IllegalStateException(
+							"Attempt to add handles twice for the same target <"
+									+ target + ">.");
+				}
+				List<IHandlePart<VR, ? extends VR>> targetHandleParts = handlePartFactory
+						.createHandleParts(Collections.singletonList(target),
+								this, contextMap);
+				handleParts.put(target, targetHandleParts);
+				BehaviorUtils.<VR> addAnchoreds(getHost().getRoot(),
+						Collections.singletonList(target), targetHandleParts);
+			}
 		}
 	}
 
@@ -184,24 +215,24 @@ public abstract class AbstractBehavior<VR> implements IBehavior<VR> {
 	}
 
 	/**
-	 * Returns a list containing the feedback parts most recently created by
-	 * this behavior.
+	 * Returns a map containing the feedback parts most recently created by this
+	 * behavior.
 	 *
-	 * @return A list containing the feedback parts most recently created by
-	 *         this behavior.
+	 * @return A map containing the feedback parts most recently created by this
+	 *         behavior.
 	 */
-	protected List<IFeedbackPart<VR, ? extends VR>> getFeedbackParts() {
+	protected Map<IVisualPart<VR, ? extends VR>, List<IFeedbackPart<VR, ? extends VR>>> getFeedbackParts() {
 		return feedbackParts;
 	}
 
 	/**
-	 * Returns a list containing the handle parts most recently created by this
+	 * Returns a map containing the handle parts most recently created by this
 	 * behavior.
 	 *
-	 * @return A list containing the handle parts most recently created by this
+	 * @return A map containing the handle parts most recently created by this
 	 *         behavior.
 	 */
-	protected List<IHandlePart<VR, ? extends VR>> getHandleParts() {
+	protected Map<IVisualPart<VR, ? extends VR>, List<IHandlePart<VR, ? extends VR>>> getHandleParts() {
 		return handleParts;
 	}
 
@@ -226,9 +257,12 @@ public abstract class AbstractBehavior<VR> implements IBehavior<VR> {
 			List<? extends IVisualPart<VR, ? extends VR>> targets) {
 		if (feedbackParts != null && !feedbackParts.isEmpty()) {
 			if (targets != null && !targets.isEmpty()) {
-				BehaviorUtils.<VR> removeAnchorages(getHost().getRoot(),
-						targets, feedbackParts);
-				feedbackParts.clear();
+				for (IVisualPart<VR, ? extends VR> target : targets) {
+					BehaviorUtils.<VR> removeAnchoreds(getHost().getRoot(),
+							Collections.singletonList(target),
+							feedbackParts.get(target));
+					feedbackParts.remove(target);
+				}
 			}
 		}
 	}
@@ -244,9 +278,19 @@ public abstract class AbstractBehavior<VR> implements IBehavior<VR> {
 			List<? extends IVisualPart<VR, ? extends VR>> targets) {
 		if (handleParts != null && !handleParts.isEmpty()) {
 			if (targets != null && !targets.isEmpty()) {
-				BehaviorUtils.<VR> removeAnchorages(getHost().getRoot(),
-						targets, handleParts);
-				handleParts.clear();
+				if (targets.size() > 1) {
+					// remove multi target handles
+					BehaviorUtils.<VR> removeAnchoreds(getHost().getRoot(),
+							targets, handleParts.get(getHost().getRoot()));
+					handleParts.remove(getHost().getRoot());
+				} else {
+					// remove single target handles
+					IVisualPart<VR, ? extends VR> target = targets.get(0);
+					BehaviorUtils.<VR> removeAnchoreds(getHost().getRoot(),
+							Collections.singletonList(target),
+							handleParts.get(target));
+					handleParts.remove(target);
+				}
 			}
 		}
 	}

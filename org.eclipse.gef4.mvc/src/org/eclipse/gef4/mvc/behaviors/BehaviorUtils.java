@@ -31,25 +31,25 @@ public class BehaviorUtils {
 
 	/**
 	 * Adds the given list of anchoreds as children to the given
-	 * {@link IRootPart}. Additionally, all given anchorages will be added to
-	 * the given anchoreds.
+	 * {@link IRootPart}. Additionally, the anchoreds are attached to the given
+	 * anchorages.
 	 *
 	 * @param root
-	 *            The {@link IRootPart}, the anchored {@link IVisualPart}s are
-	 *            to be added to as children
+	 *            The {@link IRootPart} to which the anchoreds are added as
+	 *            children.
 	 * @param anchorages
-	 *            the {@link IVisualPart}s which are to be added to the given
-	 *            anchoreds as anchorages.
+	 *            The {@link IVisualPart}s to which the given anchoreds are
+	 *            attached.
 	 * @param anchoreds
-	 *            the {@link IVisualPart}s to which the given anchorages are to
-	 *            be added.
+	 *            The {@link IVisualPart}s that are added as children to the
+	 *            given {@link IRootPart} and attached to the given anchorage.
 	 * @param <VR>
 	 *            The visual root node of the UI toolkit this
 	 *            {@link IVisualPart} is used in, e.g. javafx.scene.Node in case
 	 *            of JavaFX.
-	 * @see #removeAnchorages(IRootPart, List, List)
+	 * @see #removeAnchoreds(IRootPart, List, List)
 	 */
-	public static <VR> void addAnchorages(IRootPart<VR, ? extends VR> root,
+	public static <VR> void addAnchoreds(IRootPart<VR, ? extends VR> root,
 			List<? extends IVisualPart<VR, ? extends VR>> anchorages,
 			List<? extends IVisualPart<VR, ? extends VR>> anchoreds) {
 		if (anchoreds != null && !anchoreds.isEmpty()) {
@@ -64,23 +64,21 @@ public class BehaviorUtils {
 
 	/**
 	 * Removes the given list of anchoreds as children from the given
-	 * {@link IRootPart}. Additionally removes the given anchorages from the
-	 * anchoreds.
+	 * {@link IRootPart}. Additionally detaches them from the given anchorages.
 	 *
 	 * @param root
-	 *            The {@link IRootPart} from which the anchoreds are to be
-	 *            removed as children.
+	 *            The {@link IRootPart} from which the anchoreds are removed.
 	 * @param anchorages
-	 *            The anchorages to be removed from the given anchoreds.
+	 *            The anchorages from which the given anchoreds are detached.
 	 * @param anchoreds
-	 *            The anchoreds from which to remove the given anchorages.
+	 *            The anchoreds that are removed and detached.
 	 * @param <VR>
 	 *            The visual root node of the UI toolkit this
 	 *            {@link IVisualPart} is used in, e.g. javafx.scene.Node in case
 	 *            of JavaFX.
-	 * @see #addAnchorages(IRootPart, List, List)
+	 * @see #addAnchoreds(IRootPart, List, List)
 	 */
-	public static <VR> void removeAnchorages(IRootPart<VR, ? extends VR> root,
+	public static <VR> void removeAnchoreds(IRootPart<VR, ? extends VR> root,
 			List<? extends IVisualPart<VR, ? extends VR>> anchorages,
 			List<? extends IVisualPart<VR, ? extends VR>> anchoreds) {
 		if (anchoreds != null && !anchoreds.isEmpty()) {

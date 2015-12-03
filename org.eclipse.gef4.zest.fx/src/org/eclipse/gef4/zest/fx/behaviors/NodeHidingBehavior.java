@@ -75,7 +75,7 @@ public class NodeHidingBehavior extends AbstractHidingBehavior {
 			// before
 			hiddenNeighborsFeedbackPart = new HiddenNeighborsFeedbackPart();
 		}
-		BehaviorUtils.<Node> addAnchorages(getHost().getRoot(), Collections.singletonList(getHost()),
+		BehaviorUtils.<Node> addAnchoreds(getHost().getRoot(), Collections.singletonList(getHost()),
 				Collections.singletonList(hiddenNeighborsFeedbackPart));
 	}
 
@@ -140,7 +140,7 @@ public class NodeHidingBehavior extends AbstractHidingBehavior {
 	 * {@link NodeHidingBehavior}.
 	 */
 	protected void removeHiddenNeighborsFeedbackPart() {
-		BehaviorUtils.<Node> removeAnchorages(getHost().getRoot(), Collections.singletonList(getHost()),
+		BehaviorUtils.<Node> removeAnchoreds(getHost().getRoot(), Collections.singletonList(getHost()),
 				Collections.singletonList(hiddenNeighborsFeedbackPart));
 	}
 

@@ -252,11 +252,6 @@ public class FXDefaultFeedbackPartFactory
 			List<? extends IVisualPart<Node, ? extends Node>> targets,
 			SelectionBehavior<Node> selectionBehavior,
 			Map<Object, Object> contextMap) {
-		// no feedback for empty or multiple selection
-		if (targets.size() == 0 || targets.size() > 1) {
-			return Collections.emptyList();
-		}
-
 		// single selection, create selection feedback based on geometry
 		List<IFeedbackPart<Node, ? extends Node>> feedbackParts = new ArrayList<>();
 

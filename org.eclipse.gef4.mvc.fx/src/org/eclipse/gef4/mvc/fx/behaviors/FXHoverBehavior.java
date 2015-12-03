@@ -174,7 +174,16 @@ public class FXHoverBehavior extends HoverBehavior<Node> {
 	 */
 	protected boolean isHostOrHoverHandlePart(
 			IVisualPart<Node, ? extends Node> part) {
-		return getHost() == part || isContained(getHandleParts(), part);
+		if (getHost() == part) {
+			return true;
+		}
+		for (List<IHandlePart<Node, ? extends Node>> list : getHandleParts()
+				.values()) {
+			if (isContained(list, part)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**

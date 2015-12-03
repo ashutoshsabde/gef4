@@ -14,13 +14,11 @@ package org.eclipse.gef4.mvc.behaviors;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.gef4.common.reflect.Types;
 import org.eclipse.gef4.mvc.models.SelectionModel;
 import org.eclipse.gef4.mvc.parts.IContentPart;
-import org.eclipse.gef4.mvc.parts.IRootPart;
 import org.eclipse.gef4.mvc.viewer.IViewer;
 
 import com.google.common.reflect.TypeParameter;
@@ -61,21 +59,8 @@ public class SelectionBehavior<VR> extends AbstractBehavior<VR>
 	 */
 	protected void addFeedbackAndHandles(
 			List<? extends IContentPart<VR, ? extends VR>> selected) {
-		// root is responsible for multi selection
-		if (getHost() instanceof IRootPart && selected.size() > 1) {
-			addFeedback(selected);
-			addHandles(selected);
-			// TODO: optimize performance (generating feedback and handles) as
-			// this seems to slow down marquee selection
-		} else if (selected.contains(getHost())) {
-			// reveal the clicked part
-			getHost().getRoot().getViewer().reveal(getHost());
-			// add feedback and handles
-			addFeedback(Collections.singletonList(getHost()));
-			if (selected.get(0) == getHost() && selected.size() <= 1) {
-				addHandles(Collections.singletonList(getHost()));
-			}
-		}
+		addFeedback(selected);
+		addHandles(selected);
 	}
 
 	@Override
@@ -130,13 +115,8 @@ public class SelectionBehavior<VR> extends AbstractBehavior<VR>
 	 */
 	protected void removeFeedbackAndHandles(
 			List<? extends IContentPart<VR, ? extends VR>> selected) {
-		// root is responsible for multi selection
-		if (getHost() instanceof IRootPart && selected.size() > 1) {
-			removeHandles(selected);
-			removeFeedback(selected);
-		} else if (selected.contains(getHost())) {
-			removeHandles(Collections.singletonList(getHost()));
-			removeFeedback(Collections.singletonList(getHost()));
-		}
+		removeHandles(selected);
+		removeFeedback(selected);
 	}
+
 }

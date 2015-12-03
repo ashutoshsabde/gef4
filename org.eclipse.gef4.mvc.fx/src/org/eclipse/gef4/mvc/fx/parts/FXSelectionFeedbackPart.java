@@ -78,12 +78,13 @@ public class FXSelectionFeedbackPart
 			if (FocusModel.VIEWER_FOCUS_PROPERTY
 					.equals(evt.getPropertyName())) {
 				refreshVisual();
-			} else if (FocusModel.FOCUS_PROPERTY
-					.equals(evt.getPropertyName())) {
+			} else
+				if (FocusModel.FOCUS_PROPERTY.equals(evt.getPropertyName())) {
 				refreshVisual();
 			}
 		}
 	};
+
 	private Provider<? extends IGeometry> feedbackGeometryProvider;
 
 	/**
@@ -132,9 +133,9 @@ public class FXSelectionFeedbackPart
 
 		visual.setGeometry(feedbackGeometry);
 
-		IVisualPart<Node, ? extends Node> anchorage = anchorages.iterator()
+		IVisualPart<Node, ? extends Node> firstAnchorage = anchorages.iterator()
 				.next();
-		IViewer<Node> viewer = anchorage.getRoot().getViewer();
+		IViewer<Node> viewer = firstAnchorage.getRoot().getViewer();
 
 		if (feedbackGeometry instanceof ICurve) {
 			// stroke centered
@@ -144,14 +145,15 @@ public class FXSelectionFeedbackPart
 			visual.setStrokeType(StrokeType.OUTSIDE);
 		}
 
-		// update color according to focused and selected state
+		IContentPart<Node, ? extends Node> focusPart = viewer
+				.getAdapter(new TypeToken<FocusModel<Node>>() {
+				}).getFocused();
 		boolean focused = viewer.getAdapter(FocusModel.class).isViewerFocused()
-				&& viewer.getAdapter(FocusModel.class)
-						.getFocused() == anchorage;
+				&& focusPart == firstAnchorage;
 		List<IContentPart<Node, ? extends Node>> selected = viewer
 				.getAdapter(new TypeToken<SelectionModel<Node>>() {
 				}).getSelection();
-		boolean primary = selected.get(0) == anchorage;
+		boolean primary = selected.get(0) == firstAnchorage;
 		if (primary) {
 			visual.setEffect(getPrimarySelectionFeedbackEffect(focused));
 			visual.setStroke(Color.BLACK);

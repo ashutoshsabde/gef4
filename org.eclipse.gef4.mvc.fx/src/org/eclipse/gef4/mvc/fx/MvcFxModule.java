@@ -118,7 +118,6 @@ public class MvcFxModule extends MvcModule<Node> {
 		// register default behaviors
 		bindContentBehaviorAsAbstractFXContentPartAdapter(adapterMapBinder);
 		bindHoverBehaviorAsAbstractFXContentPartAdapter(adapterMapBinder);
-		bindSelectionBehaviorAsAbstractFXContentPartAdapter(adapterMapBinder);
 		bindFXFocusBehaviorAsAbstractFXContentPartAdapter(adapterMapBinder);
 
 		// register default policies

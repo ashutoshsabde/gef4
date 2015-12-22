@@ -1,0 +1,1 @@
+Will be replaced with javafx properties as of https://bugs.eclipse.org/bugs/show_bug.cgi?id=484774.
